@@ -1,0 +1,289 @@
+<!doctype html>
+<html>
+<style>
+	/* 		body {
+				font: 14px/1.4 Georgia, Serif; 
+			} */
+	[v-cloak] {
+		display: none;
+	}
+
+	/* @import url("//unpkg.com/element-ui@2.15.7/lib/theme-chalk/index.css"); */
+</style>
+
+
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<meta charset="utf-8">
+	<meta id="viewport" name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,
+		minimum-scale=1.0,user-scalable=no,viewport-fit=cover">
+
+	<!-- import CSS -->
+	<!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
+	<link rel="stylesheet" href="../js/element-ui/theme-chalk/index.css">
+
+
+</head>
+
+<body style="background-size: 100%;">
+	<div style="position:relative; z-index:-1"  >
+		<canvas id="draw_texiao" style=" position: fixed; display: block;left:0;top:0;width: 100%;height: 100%; "></canvas>
+	</div>
+
+	<div>
+
+		<div style="margin: 50px;"></div>
+
+		<div id="app" v-cloak>
+
+
+			<el-row>
+				<el-col :span="12" v-for="(item,index) in value" :key="index" :xs="24">
+					<div :id="item.sensor_type" style="height:200px;border: 1px solid #DDDDDD;
+						margin: 20px;  ">
+					</div>
+				</el-col>
+			</el-row>
+
+		</div>
+
+	</div>
+
+</body>
+
+<script src="../js/project_config.js"></script>
+
+
+<script src="../js/vue.js"></script>
+<script src="../js/element-ui/index.js"></script>
+<script src="../js/jquery-3.4.1.min.js"></script>
+
+<script src="../js/highcharts/highcharts.js"></script>
+<script src="../js/highcharts/exporting.js"></script>
+<script src="../js/highcharts/highcharts-zh_CN.js"></script>
+<script src="../js/highcharts/highcharts-more.js"></script>
+
+
+
+<script>
+
+
+
+	Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+
+	function activeLastPointToolip(chart) {
+		var points = chart.series[0].points;
+		chart.tooltip.refresh(points[points.length - 1]);
+	}
+
+
+
+
+
+	function activeLastPointToolip(chart) {
+		var points = chart.series[0].points;
+		chart.tooltip.refresh(points[points.length - 1]);
+	}
+
+
+	function init_dynamic(instance, item, vue) {
+		$(instance).highcharts({
+			chart: {
+				type: 'spline',
+				backgroundColor:"#ff7373",
+				animation: Highcharts.svg, // don't animate in old IE
+				marginRight: 10,
+				events: {
+					load: function () {
+						// set up the updating of the chart each second
+						var series = this.series[0],
+							chart = this;
+
+						setInterval(function () {
+
+							var x = (new Date()).getTime(); // current time
+
+
+							var number_value = 0;
+
+							for (let temp_item of vue.value) {
+								if (temp_item.sensor_type == item.sensor_type) {
+									number_value = Number(temp_item.sensor_value);
+
+								}
+							}
+
+							y = number_value; //<===================================
+							series.addPoint([x, y], true, true);
+							activeLastPointToolip(chart)
+						}, dynamic_line_request_interval);
+					}
+				}
+			},
+			title: {
+				text: ' ',
+				
+			},
+			colors: ['#5b9bd5', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655',
+			'#FFF263', '#6AF9C4'],
+			xAxis: {
+				type: 'datetime',
+				tickPixelInterval: 150,
+				
+				
+			},
+			yAxis: {
+				title: {
+					text: item.sensor_name,
+					style:{color: '#ffffff',fontSize: '20px'},
+					
+				},
+				plotLines: [{	//基准线
+					value: 0,
+					width: 1,
+					color: '#ffffff'
+				}]
+			},
+			tooltip: {
+				borderRadius:200,
+				backgroundColor:"#5b9bd5",
+				shadow:false,
+				
+				formatter: function () {
+					return '<b>' + this.series.name + '</b><br/>' +
+						Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+						Highcharts.numberFormat(this.y, 2);
+				}
+			},
+			legend: {
+				enabled: false
+			},
+			exporting: {
+				enabled: false
+			},
+			series: [{
+				name: ' ',
+				data: (function () {
+					// generate an array of random data
+					var data = [],
+						time = (new Date()).getTime(),i;
+		
+					for (i = -19; i <= 0; i += 1) {
+						data.push({
+							x: time + i * 1000,
+							y: 0
+							// y: Math.random() * 100
+						});
+					}
+					return data;
+				}())
+			}]
+		}, function (c) {
+			activeLastPointToolip(c)
+		});
+	}
+
+
+
+
+
+
+	var app_instance = new Vue({
+		el: '#app',
+		data: {
+			value: [], //add default value here
+			flag_disable_refresh: false,
+			flag_is_init: 0,
+
+		},
+		methods: {
+
+			refresh() {
+
+				var request_url = cfg_sensor_monitor_url + "?option=select";
+
+				_self = this;
+
+				$.ajax({
+					type: 'get',
+					dataType: "json",
+					url: request_url,
+					success: function (data) {
+
+						var json_data;
+						try {
+							json_data = JSON.parse(data);
+						} catch (error) {
+							json_data = data;
+						}
+
+						// var string_value = JSON.stringify(json_data);
+						_self.filter(json_data);
+						// _self.value = JSON.parse((JSON.stringify(data)));
+
+					}
+				});
+
+
+			},
+			filter(data) {
+				var temp_value = [];
+
+				// console.log(JSON.stringify(data));
+
+				for (let item of data) {
+
+					if (item.sensor_role == "label") {
+						temp_value.push(item);
+					}
+				}
+
+				this.value = temp_value;
+
+				// console.log(JSON.stringify(this.value));
+
+				if (this.flag_is_init == 0) {
+					this.flag_is_init = 1; //第一次vue不会加载dome
+					return;
+				}
+
+				if (this.flag_is_init < 2) { //等待第二次轮训vue已经加载了dome才能操作
+
+					var x = document.getElementById("app");
+					var y = x.getElementsByTagName("div");
+
+					for (let item of this.value) {
+
+						init_dynamic('#' + item.sensor_type, item, this);
+					}
+					this.flag_is_init = this.flag_is_init + 1;
+				}
+
+			}
+
+
+
+		},
+		created() {
+			this.refresh();
+			timer_request = setInterval(this.refresh, 2000);
+
+		}
+
+	})
+
+
+	config_UI("default");
+
+		//////////////////////////////////////////
+</script>
+
+
+
+
+</html>

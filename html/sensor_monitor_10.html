@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html>
+
+
+<style>
+	/* 		body {
+			font: 14px/1.4 Georgia, Serif; 
+		} */
+	[v-cloak] {
+		display: none;
+	}
+	.show_label_name{
+		background-color: #5b9bd5;
+		width: 100%;
+		text-align: center;
+		color: #FFFFFF;
+		font-size: 22px;
+		padding: 4px 0px;
+		border: 2px solid #41719c;
+	}
+	.show_label_value{
+		background-color: #ff7373;
+		width: 100%;
+		text-align: center;
+		color: #000;
+		padding: 4px 0px;
+		font-weight: 800;
+		font-size: 22px;
+		border: 2px solid #9c3737;
+	}
+	
+	.show_card_name{
+		background-color: #5b9bd5;
+		width: 100%;
+		text-align: center;
+		color: #FFFFFF;
+		font-size: 22px;
+		padding: 4px 0px;
+		border: 2px solid #41719c;
+	}
+	.show_card_value{
+		background-color: #ff7373;
+		width: 100%;
+		text-align: center;
+		color: #000;
+		padding: 4px 0px;
+		font-weight: 800;
+		font-size: 22px;
+		border: 2px solid #9c3737;
+	}
+	
+	.show_switch_name{
+		background-color: #5b9bd5;
+		width: 100%;
+		text-align: center;
+		color: #FFFFFF;
+		font-size: 16px;
+		padding: 6px 0px;
+		border: 2px solid #41719c;
+
+	}
+
+	.show_number_name{
+		background-color: #5b9bd5;
+		width: 100%;
+		text-align: center;
+		color: #FFFFFF;
+		font-size: 18px;
+		padding: 10px 4px;
+		border: 2px solid #41719c;
+	}
+	.show_number_value{
+		background-color: #ff7373;
+		width: 100%;
+		text-align: center;
+		color: #000;
+		padding: 0px 0px;
+		font-weight: 800;
+		font-size: 22px;
+		border: 2px solid #9c3737;
+	}
+	
+	.show_slider_bg{
+		background-color: #ff7373;
+		padding: 5px 20px;
+		color: #FFFFFF;
+
+	}
+	
+	.show_timer_bg{
+		background-color: #5b9bd5;
+		padding: 5px 20px;
+		color: #FFFFFF;
+
+	}
+	
+	.show_textbox_name{
+		background-color: #5b9bd5;
+		width: 100%;
+		text-align: center;
+		color: #FFFFFF;
+		font-size: 22px;
+		padding: 4px 0px;
+		border: 2px solid #41719c;
+	}
+	.show_textbox_value{
+		background-color: #ff7373;
+		width: 100%;
+		text-align: center;
+		color: #000;
+		padding: 4px 0px;
+		border: 2px solid #9c3737;
+	}
+	
+	.show_textbox_bg{
+		background-color: #ff0000;
+		padding: 5px 20px;
+		color: #FFFFFF;
+	}
+	
+	
+</style>
+
+
+
+
+<head>
+	<meta charset="utf-8">
+	<meta id="viewport" name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,
+		minimum-scale=1.0,user-scalable=no,viewport-fit=cover">
+	<title></title>
+
+
+	<!-- import CSS -->
+
+	<!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
+	<link rel="stylesheet" href="../js/element-ui/theme-chalk/index.css">
+
+</head>
+
+
+<body style="background-size: 100%;">
+	<canvas id="draw_texiao" style=" position: fixed; display: block;left:0;top:0;width: 100%;height: 100%; "></canvas>
+
+	<div id="app" v-cloak>
+
+		<el-card class="box-card">
+			<div v-for="item in value">
+				<div v-if="item.sensor_role=='online'" style="float: left;margin-bottom: 20px;">
+					【<span>{{item.sensor_name}}</span> <span style="color: blue;">{{online_detect(item)}}</span>】
+				</div>
+			</div>
+		</el-card>
+		<div style="clear: both;"></div>
+
+		<div v-if="ui_config.show_label">
+			<div class="box-card"
+				style="margin: 10px 20px;width: 250px;float: left;border-radius: 10px;"
+				v-for="item in value" v-if="item.sensor_role=='label'">
+				<div>
+					<el-row>
+						<el-col :span="11" :xs="11" class="show_label_name">
+								<span>{{item.sensor_name}}</span>
+						</el-col>
+						<el-col :span="1" :xs="1" >
+								<div>&nbsp</div>
+						</el-col>
+						
+						<el-col :span="11" :xs="11" class="show_label_value">
+								<span>{{item.sensor_value}}</span>
+						</el-col>
+						
+						
+						
+					</el-row>
+				</div>
+			</div>
+
+
+			<div class="box-card"
+				style="margin: 10px 20px;width: 250px;float: left;border-radius: 10px;"
+				v-for="item in value" v-if="item.sensor_role=='label_map'">
+				<div>
+					<el-row>
+						<el-col :span="11" :xs="11" class="show_label_name">
+								<span>{{item.sensor_name}}</span>
+						</el-col>
+						<el-col :span="1" :xs="1" >
+								<div>&nbsp</div>
+						</el-col>
+						
+						<el-col :span="11" :xs="11" class="show_label_value">
+								<span>{{JSON.parse(item.sensor_note.trim())[""+item.sensor_value.trim()]}}</span>
+						</el-col>
+						
+						
+						
+					</el-row>
+				</div>
+			</div>
+
+		</div>
+		<div style="clear: both;"></div>
+
+		<div v-if="ui_config.show_card">
+			
+			<div class="box-card"
+				style="margin: 10px 20px;width: 350px;float: left;border-radius: 10px;"
+				v-for="item in value" v-if="item.sensor_role=='card'">
+
+				<div>
+					<el-row>
+						<el-col :span="7" :xs="7">
+							<div class="show_card_name" >
+								<span>{{item.sensor_name}}</span>
+							</div>
+						</el-col>
+						<el-col :span="17" :xs="17">
+							<div class="show_card_value" >
+								<span>{{item.sensor_value}}</span>
+							</div>
+						</el-col>
+					</el-row>
+				</div>
+			</div>
+
+		</div>
+		<div style="clear: both;"></div>
+		
+		<div v-if="ui_config.show_radio_button" style="padding-top: 10px;">
+			
+			<div v-for="item in value" style="padding-left:20px;">
+				<div v-if="item.sensor_role=='radio_button'">
+					<el-radio-group v-model="item.sensor_value" @change="source_change(item)" >
+					<el-radio-button v-for="item_2 in radio_button_enum(item.sensor_note)" v-bind:label="item_2.name" 
+					>{{item_2.value}}</el-radio-button>
+						<div style="padding-top: 10px;"></div>
+					</el-radio-group>
+				</div>
+			</div>
+			
+		</div>
+
+		<div v-if="ui_config.show_switch" style="padding-top: 0px;">
+
+			<div v-for="item in value">
+				<div v-if="item.sensor_role=='switch'">
+					<div
+						style="margin: 20px 20px;width: 200px;height: 40px;float: left;">
+						<el-row >
+							<el-col :span="12" :xs="12" class="show_switch_name">
+								<span style="">{{item.sensor_name}}</span>
+							</el-col>
+							<el-col :span="1" :xs="1" >
+									<div>&nbsp</div>
+							</el-col>
+							<el-col :span="11" :xs="11" >
+								<div v-if="item.sensor_value=='on'" >
+									<el-button @click="source_change(item)" type="primary" 
+									style="background-color: #5b9bd5;border: 2px solid #41719c;
+									 color: #ffffff;border-radius:0px;font-size: 16px;height: 37px;">
+										开</button>
+								</div>
+								<div v-else  >
+									<el-button @click="source_change(item)" type="primary"
+									style="background-color: #ff7373;border: 2px solid #9c3737;
+									 color: #ffffff;border-radius:0px;font-size: 16px;height: 37px;">
+										关</button>
+								</div>
+							</el-col>
+						</el-row>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+		
+		
+		<div v-if="ui_config.show_number" style="margin-top: 60px;">
+			<div v-for="item in value">
+				<div v-if="item.sensor_role=='number'" 
+				style="margin: 10px 20px;width: 300px;float: left;border-radius: 10px;">
+					<el-row>
+						<el-col :span="9" :xs="9" class="show_number_name" >
+							<span>{{item.sensor_name}}</span>
+						</el-col>
+						<el-col :span="1" :xs="1" >
+								<div>&nbsp</div>
+						</el-col>
+						<el-col :span="14" :xs="14" style="padding: 4.5px 20px;"  class="show_number_value">
+							<el-input-number v-model="item.sensor_value" @change="source_change(item)" size="small" :min="1"
+								:max="60000"></el-input-number>
+						</el-col>
+					</el-row>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+
+		<div v-if="ui_config.show_slider" style="margin-top: 60px;">
+
+			<div v-for="item in value">
+				<div v-if="item.sensor_role=='slider'">
+
+					<div class="show_slider_bg"  style="float: left;margin: 5px 10px;">
+						<div  style="min-width: 300px; max-width: 600px;">
+							<el-row>
+								<el-col :span="6">
+									<div class="grid-content bg-purple" style="text-align: left;margin-top: 10px;">
+										{{item.sensor_name}}
+									</div>
+								</el-col>
+								<el-col :span="18">
+									<el-slider v-model.string-set="item.sensor_value" @change="source_change(item)">
+									</el-slider>
+								</el-col>
+
+							</el-row>
+						</div>
+
+					</div>
+
+
+				</div>
+			</div>
+
+
+
+
+		</div>
+
+		<div style="clear: both;"></div>
+		
+		<div v-if="ui_config.show_timer" style="margin-top: 60px;">
+			<div class="show_timer_bg" style="padding:20px;">
+				<el-row>
+					<el-col :span="12" :xs="24" v-for="item in value" v-if="item.sensor_role=='timer'">
+						<template>
+							<div class="block">
+								<span class="demonstration">{{item.sensor_name}}&nbsp;</span>
+								<el-date-picker v-model="item.sensor_value" type="datetime" @focus="disable_refresh()"
+									@blur="enable_refresh()" @change="source_change(item)" format="yyyy-MM-dd HH:mm:ss"
+									value-format="timestamp" placeholder="选择日期时间">
+								</el-date-picker>
+							</div>
+						</template>
+						<div style="margin-top: 20px;"></div>
+					</el-col>
+				</el-row>
+			</div>
+
+		</div>
+
+		<div v-if="ui_config.show_textbox">
+			<div style="margin-top: 40px; ">
+				<div>
+					<div v-for="item in value">
+						<div v-if="item.sensor_role=='textbox'">
+
+							<el-row style="margin: 20px 10px; ">
+								<el-col :span="3">
+									<div class="show_textbox_name">{{item.sensor_name}}</div>
+								</el-col>
+								<el-col :span="1">&nbsp;</el-col>
+								<el-col :span="13">
+									<el-input v-model="item.sensor_value" @focus="disable_refresh()"
+										@blur="enable_refresh()" @change="source_change(item)"/>
+									
+								</el-col>
+								<el-col :span="1">&nbsp;</el-col>
+								<el-col :span="4">
+																			<el-button @click="source_change(item)" type="primary"
+										style="background-color: #ff7373;border: 2px solid #9c3737;
+										 color: #ffffff;border-radius:0px;font-size: 16px;height: 37px;">
+											{{item.sensor_note}}</button>
+								</el-col>
+							</el-row>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div style="margin-bottom: 60px;"></div>
+
+
+
+	</div>
+
+</body>
+
+<script type="text/javascript" src="../js/project_config.js"></script>
+<!-- <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://unpkg.zhimg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script> -->
+<script src="../js/vue.js"></script>
+<script src="../js/element-ui/index.js"></script>
+<script src="../js/jquery-3.4.1.min.js"></script>
+<script src="../js/db_table.js"></script>
+<script>
+	
+
+	console.log(cfg_sensor_monitor_url);
+
+
+	function request_option(option, data, callback) {
+
+
+		var delete_url = cfg_sensor_monitor_url;
+
+		delete_url = delete_url + "?option=" + option + "&data=" + JSON.stringify(data);
+
+		// console.log(delete_url);
+
+		$.ajax({
+			type: 'get',
+			dataType: "json",
+			url: delete_url,
+			success: function (data) {
+				var json_data;
+				try {
+					json_data = JSON.parse(data);
+					
+				} catch (error) {
+					json_data = data;
+				}
+
+				callback(json_data);
+			},
+		});
+	}
+
+	//去掉字符串中的字母
+	function remove_a_Z(str) {
+		var result;
+		var reg = /[a-zA-Z]+/;  //[a-zA-Z]表示匹配字母，g表示全局匹配
+		while (result = str.match(reg)) { //判断str.match(reg)是否没有字母了
+			str = str.replace(result[0], ''); //替换掉字母  result[0] 是 str.match(reg)匹配到的字母
+		}
+		return str;
+	}
+
+
+
+	function timer_diff_now(sensor_time) {
+		var date = sensor_time;
+		date = date.substring(0, 19);
+		date = date.replace(/-/g, '/');
+		var timestamp_sensor = new Date(date).getTime() / 1000;
+		var timestamp_now = parseInt(new Date().getTime() / 1000);
+
+		// console.log(timestamp_now - timestamp_sensor);
+
+		return (timestamp_now - timestamp_sensor)
+	}
+
+
+
+
+
+	function analyse_frame(context, data) {
+
+		var alert_log = "";
+
+		var alert_item_number = 0;
+
+		for (let item of data) {
+
+			if (item.sensor_role == "alert") {
+				//
+				var string_vlaue = item.sensor_value;
+				var json_value = JSON.parse(string_vlaue);
+
+				var alert_value = json_value.value;
+				var alert_limit = json_value.limit;
+				var alert_arg = json_value.arg;
+
+				var alert_value_number = 0;
+				var alert_value_name = '';
+
+				var alert_limit_number = 0;
+				var alert_limit_name = '';
+
+				for (let new_item of context.value) {
+					if (new_item.sensor_type == alert_value) {
+						alert_value_number = parseInt(new_item.sensor_value);
+						alert_value_name = new_item.sensor_name;
+
+						// console.log("alert_value_number=" + alert_value_number + "alert_value_name=" + alert_value_name);
+					}
+
+					if (new_item.sensor_type == alert_limit) {
+						alert_limit_number = parseInt(new_item.sensor_value);
+						alert_limit_name = new_item.sensor_name;
+
+						// console.log("alert_limit_number=" + alert_limit_number + "alert_limit_name=" + alert_limit_name);
+					}
+				}
+
+
+				alert_log = alert_log + "<div style=\"margin:5px 5px; text-align: center;\">";
+
+				if (alert_arg.trim() == ">") {
+					if (alert_value_number > alert_limit_number) {
+						alert_item_number++;
+						// alert_log = alert_log + '[' + alert_value_name + ' ' + alert_value_number + "] 超过 [" + alert_limit_name + ' ' + alert_limit_number + ']';
+						alert_log = alert_log + '[' + item.sensor_note + ']';
+					}
+				}
+				else if (alert_arg.trim() == "<") {
+					if (alert_value_number < alert_limit_number) {
+						alert_item_number++;
+						// alert_log = alert_log + '[' + alert_value_name + ' ' + alert_value_number + "] 低于 [" + alert_limit_name + ' ' + alert_limit_number + ']';
+						alert_log = alert_log + '[' + item.sensor_note + ']';
+					}
+				}
+				else if (alert_arg.trim() == "==" || alert_arg.trim() == "=") {
+					if (alert_value_number == alert_limit_number) {
+						alert_item_number++;
+						// alert_log = alert_log + '[' + alert_value_name + ' ' + alert_value_number + "] 等于 [" + alert_limit_name + ' ' + alert_limit_number + ']';
+						alert_log = alert_log + '[' + item.sensor_note + ']';
+					}
+				}
+				else if (alert_arg.trim().indexOf("=") != -1) {
+					var temp_compare_value = parseInt(alert_arg.trim().replace("=", ""));
+					if (alert_value_number == temp_compare_value) {
+						alert_item_number++;
+						// alert_log = alert_log + '[' + alert_value_name + ' ' + alert_value_number + "] 等于 [" + alert_limit_name + ' ' + alert_limit_number + ']';
+						alert_log = alert_log + '[' + item.sensor_note + ']';
+					}
+				}
+				else if (alert_arg.trim().indexOf(">") != -1) {
+					var temp_compare_value = parseInt(alert_arg.trim().replace(">", ""));
+					if (alert_value_number > temp_compare_value) {
+						alert_item_number++;
+						// alert_log = alert_log + '[' + alert_value_name + ' ' + alert_value_number + "] 等于 [" + alert_limit_name + ' ' + alert_limit_number + ']';
+						alert_log = alert_log + '[' + item.sensor_note + ']';
+					}
+				}
+				else if (alert_arg.trim().indexOf("<") != -1) {
+					var temp_compare_value = parseInt(alert_arg.trim().replace("<", ""));
+					if (alert_value_number < temp_compare_value) {
+						alert_item_number++;
+						// alert_log = alert_log + '[' + alert_value_name + ' ' + alert_value_number + "] 等于 [" + alert_limit_name + ' ' + alert_limit_number + ']';
+						alert_log = alert_log + '[' + item.sensor_note + ']';
+					}
+				}
+
+
+				// alert_log =alert_log+ "</div><br/>";
+				alert_log = alert_log + "</div>";
+
+
+			}
+		}
+
+		if (alert_item_number > 0) {
+			// context.$message(alert_log);
+			context.$message({
+				message: alert_log,
+				type: 'warning',
+				duration: 1800,
+				dangerouslyUseHTMLString: true
+			});
+			
+		}
+
+
+	}
+
+
+
+	new Vue({
+		el: '#app',
+		data: {
+			value: [], //add default value here
+			ui_config: {
+				show_label: false,
+				show_switch: false,
+				show_slier: false,
+				show_number: false,
+				show_timer: false,
+				show_textbox: false,
+				show_radio_button: false,
+				show_card: false,
+			},
+			flag_disable_refresh: false,
+
+		},
+		methods: {
+
+			source_change(item) {
+				
+
+				console.log(JSON.stringify(item));
+				console.log("------");
+				console.log(item.sensor_role);
+				
+				if(item.sensor_role == "switch")
+				{
+					console.log("++++");
+					if(item.sensor_value == "on")
+					{
+						item.sensor_value = "off";
+					}
+					else
+					{
+						
+						item.sensor_value = "on";
+
+						console.log("++++");
+					}
+				}
+				console.log(JSON.stringify(item));
+				
+				
+				console.log("------");
+
+				_self = this;
+				console.log("------3-----")
+				request_option("update", item, function (data) {
+
+
+					// _self.show_source(data); //是否立刻刷新数据，不建议
+
+
+				});
+
+
+			},
+
+			show_source(data) {
+				// console.log("------show_source-----")
+				value_temp = [];
+
+				var temp_show_label = false;
+				var temp_show_card = false;
+				var temp_show_slider = false;
+				var temp_show_switch = false;
+				var temp_show_number = false;
+				var temp_show_timer = false;
+				var temp_show_textbox = false;
+				var temp_show_radio_button = false;
+
+				for (let item of data) {
+
+					if (item.sensor_role == "label" || item.sensor_role == "label_map") {
+						temp_show_label = true;
+					} else if (item.sensor_role == "slider") {
+						temp_show_slider = true;
+					} else if (item.sensor_role == "number") {
+						temp_show_number = true;
+					} else if (item.sensor_role == "switch") {
+						temp_show_switch = true;
+					} else if (item.sensor_role == "timer") {
+						temp_show_timer = true;
+					} else if (item.sensor_role == "textbox") {
+						temp_show_textbox = true;
+					} else if (item.sensor_role == "radio_button") {
+						temp_show_radio_button = true;
+					} else if (item.sensor_role == "card") {
+						temp_show_card = true;
+					}
+
+
+
+					if (item.sensor_role == "slider") {
+						var temp_slider = {
+							id: "",
+							sensor_name: "",
+							sensor_type: "",
+							sensor_value: 0,
+							sensor_role: ""
+						};
+						temp_slider.id = item.id;
+						temp_slider.sensor_type = item.sensor_type;
+						temp_slider.sensor_name = item.sensor_name;
+						temp_slider.sensor_role = item.sensor_role;
+						temp_slider.sensor_value = parseInt(item.sensor_value);
+
+						value_temp.push(temp_slider);
+
+					} else if (item.sensor_role == "checkbox") {
+						var temp_slider = {
+							id: "",
+							sensor_name: "",
+							sensor_type: "",
+							sensor_value: false,
+							sensor_role: ""
+						};
+
+						temp_slider.id = item.id;
+						temp_slider.sensor_type = item.sensor_type;
+						temp_slider.sensor_name = item.sensor_name;
+						temp_slider.sensor_role = item.sensor_role;
+						temp_slider.sensor_value = Boolean(item.sensor_value);
+
+						value_temp.push(temp_slider);
+
+					} else {
+						value_temp.push(item);
+					}
+
+				}
+
+
+
+				this.ui_config.show_label = temp_show_label;
+				this.ui_config.show_card = temp_show_card;
+				this.ui_config.show_slider = temp_show_slider;
+				this.ui_config.show_switch = temp_show_switch;
+				this.ui_config.show_number = temp_show_number;
+				this.ui_config.show_timer = temp_show_timer;
+				this.ui_config.show_textbox = temp_show_textbox;
+				this.ui_config.show_radio_button = temp_show_radio_button;
+
+
+				this.value = value_temp;
+
+				analyse_frame(this, data);
+
+			},
+
+			disable_refresh() {
+				this.flag_disable_refresh = true;
+			},
+			enable_refresh() {
+				this.flag_disable_refresh = false;
+			},
+
+
+			refresh() {
+
+				if (this.flag_disable_refresh) {
+					// console.log(this.flag_disable_refresh);
+					return;
+				}
+
+				_self = this;
+				console.log("------2-----")
+				request_option("select", " ", function (data) {
+
+					// console.log(JSON.stringify(data));
+
+					_self.show_source(data);
+				});
+
+			},
+
+			radio_button_enum(value) {
+
+				if (value == null || value == "") {
+					console.log("invalid radio button!!");
+					return null;
+				}
+
+				var value_temp = [];
+				// var json_value = JSON.parse(value);
+
+				var real_value = value.replace("{", "").replace("}", "").replace(/\"/g, "").trim();
+
+				var string_key_value = real_value.split(',');
+				for (var item in string_key_value) {
+
+					var string_key_value_2 = string_key_value[item].split(':');
+					var temp_key = string_key_value_2[0];
+					var temp_value = string_key_value_2[1];
+
+					var temp_enum = {
+						name: "",
+						value: ""
+					};
+
+					temp_enum.name = temp_key;
+					temp_enum.value = temp_value;
+					value_temp.push(temp_enum);
+				}
+
+				return value_temp;
+
+
+			},
+			refresh() {
+
+				if (this.flag_disable_refresh) {
+					// console.log(this.flag_disable_refresh);
+					return;
+				}
+
+				_self = this;
+				// console.log("------1-----")
+				request_option("select", " ", function (data) {
+
+					console.log(JSON.stringify(data));
+
+					_self.show_source(data);
+				});
+
+			},
+			online_detect(item) {
+
+				var string_state = '';
+				if (timer_diff_now(item.sensor_time) > 20) {
+
+					var show_time = date_to_string(new Date(item.sensor_time));
+					string_state = '离线 <上次在线：' + show_time + '>';
+
+					if (parseInt(item.sensor_value) > 0) {
+						item.sensor_value = 0;
+						console.log("------0-----")
+						request_option("update", item, function (data) {
+							// change value to 0.
+						});
+					}
+
+
+				}
+				else {
+					string_state = '在线 <在线时长：' + item.sensor_value + '>';
+				}
+
+				return string_state;
+
+			}
+
+
+
+		},
+
+		created() {
+
+			this.show_source(this.value);
+
+			this.refresh();
+
+			timer_request = setInterval(this.refresh, 2000);
+
+		}
+
+	});
+
+
+	config_UI("sensor_monitor");
+
+
+</script>
+
+
+
+</html>

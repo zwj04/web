@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+
+	<style>
+		[v-cloak] {
+			display: none;
+		}
+	</style>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="../js/element-ui/theme-chalk/index.css">
+		<style>
+			.box1 {
+				position: absolute;
+				top: 40%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 530px;
+				padding: 50px;
+				box-sizing: border-box;
+				border-radius: 10px;
+				
+			}
+
+			.inputbox {
+				text-align: center;
+			}
+
+			.project_title {
+				width: 100%;
+				padding: 10px 5px;
+				background-color: #20d575;
+				font-size: 18px;
+				font-weight: 800;
+				color: #ffffff;
+				border-radius: 5px;
+
+			}
+
+			.project_username {
+				position: relative;
+				float: left;
+				width: 40%;
+			}
+
+			.project_passwd {
+				position: relative;
+				float: right;
+				width: 40%;
+
+			}
+
+			.box1 input[type="submit"] {
+				text-align: center;
+				margin: 20px;
+				background: transparent;
+				border: none;
+				outline: none;
+				color: #ffffff;
+				background: #5b9bd5;
+				padding: 10px 20px;
+				cursor: pointer;
+				border-radius: 5px;
+				width: 15%;
+			}
+
+			input:-moz-placeholder,
+			textarea:-moz-placeholder {
+				color: #F6F6F6;
+			}
+
+			input:-ms-input-placeholder,
+			textarea:-ms-input-placeholder {
+				color: #F6F6F6;
+			}
+
+			input::-webkit-input-placeholder,
+			textarea::-webkit-input-placeholder {
+				color: #F6F6F6;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="app" v-cloak :style="body_style">
+
+			<div class="box1">
+				<div class="inputbox" @click="display_input_pid()">
+					<center>
+					<h1 class="project_title" >{{ value_project_name}}</h1>
+					</center>
+				</div>
+
+				<div class="inputbox" style="display: inline;" id="div_input_pid">
+					<center>
+					<input type="text" placeholder="设计编号" id="login_input_pid" :value="value_project_pid"
+						style="background-color: #ff7373;color: #FFFFFF;border: 0px;padding: 10px 5px;font-size: 16px;border-radius: 4px;">
+					</center>
+				</div>
+				
+				<div style="margin: 20px 0px;">
+
+					<div class="project_username ">
+						<input type="text" placeholder="用户名称" id="login_input_username"
+							style="width: 100%;background-color: #ff7373;color: #FFFFFF;border: 0px;padding: 10px 5px;font-size: 16px;border-radius: 4px;">
+					</div>
+					
+					<div class="project_passwd">
+						<input type="password" placeholder="用户密码" id="login_input_passwd"
+							style="width: 100%;background-color: #5b9bd5;color: #FFFFFF;border: 0px;padding: 10px 5px;font-size: 16px;border-radius: 4px;">
+					</div>
+
+				</div>
+
+				<div class="inputbox">
+					<input type="submit" value="登录" @click="login()">
+				</div>
+				
+				<input id="div_input_face" type="submit" value="人脸登录" @click="login_face()"
+					style="margin-top: 20px;display: none;">
+					
+			</div>
+
+		</div>
+
+	</body>
+	<script type="text/javascript" src="../js/project_config.js"></script>
+	<script src="../js/vue.js"></script>
+	<script src="../js/jquery-3.4.1.min.js"></script>
+	<script src="../js/element-ui/index.js"></script>
+
+<script type="text/javascript">
+	var global_project_pid = 1000;
+
+
+	new Vue({
+		el: '#app',
+		data: {
+			value_project_name: "用户登录", //add default value here
+			value_project_pid: '',
+			show_pid_input: true,
+			show_pid_click_count: 0,
+			timer_reset_click_count: null,
+			router_table: {},
+			router_request_url: '',
+			config_data: {},
+			body_style: {
+				backgroundImage: '',
+				padding: '0px',
+				margin: '0px',
+				width: '100%',
+				height: '100%',
+				backgroundColor: '#ffffff',
+				backgroundSize: 'cover',
+				position: 'absolute',
+				top: '0px',
+				left: '0px',
+				right: '0px',
+				bottom: '0px',
+			}
+		},
+
+		methods: {
+			
+			db_request_option(type, table, option, arg_data, callback) {
+
+				var data = {};
+				var db_name = table;
+
+				if (arg_data != null) {
+					data = JsonDeepCopy(arg_data);
+				}
+
+				if (type == 'post') {
+					request_url = router_request_url + "?option=" + option + "&data={}" + "&table=" + db_name;
+
+					console.log(request_url);
+
+					$.ajax({
+						type: 'post',
+						dataType: "json",
+						data: data,
+						url: request_url,
+						success: function (data) {
+							var json_data;
+							try {
+								json_data = JSON.parse(data);
+							} catch (error) {
+								json_data = data;
+							}
+							callback(json_data);
+						},
+					});
+				}
+				else {
+					request_url = router_request_url + "?option=" + option + "&data=" + JSON.stringify(data) +
+						"&table=" + db_name;
+
+					console.log(request_url);
+					console.log('---------------');
+					$.ajax({
+						type: 'get',
+						dataType: "json",
+						url: request_url,
+						success: function (data) {
+							var json_data;
+							try {
+								json_data = JSON.parse(data);
+							} catch (error) {
+								json_data = data;
+							}
+							callback(json_data);
+						},
+					});
+				}
+			},
+			login_request(login_url) {
+
+				console.log("login:" + login_url);
+
+				_self = this;
+
+				$.ajax({
+					type: 'get',
+					dataType: "json",
+					url: login_url,
+					success: function (data_value) {
+						// content.$message('用户名或密码为空，请检查！');
+
+						var data;
+						try {
+							data = JSON.parse(data_value);
+						} catch (error) {
+							data = data_value;
+						}
+
+
+						for (item in data) {
+							// console.log("item:" + item);
+							if (item == "error") {
+								_self.$notify({
+									title: '失败',
+									message: '校验失败',
+									type: 'warning'
+								});
+								//notify
+								localStorage.setItem("project_data", null); //clean config data
+								return;
+							}
+						}
+
+						var ui_cfg_app_main_index = 1;
+						var ui_cfg_pc_main_index = 1;
+						var sys_cfg_not_template = false;
+						var sys_cfg_router_enable = false;
+						var json_value = {};
+
+						json_value['data_table'] = data;
+
+						for (let item of data) {
+							// console.log("item:" + item.id);
+							json_value[item.id] = item.value;
+							if (item.id == "uid") {
+								localStorage.setItem("project_uid", item.value);
+							} else if (item.id == "designName") {
+								localStorage.setItem("project_name", item.value);
+							} else if (item.id == "ui_cfg_app_main_index") {
+								ui_cfg_app_main_index = parseInt(item.value);
+							} else if (item.id == "ui_cfg_pc_main_index") {
+								ui_cfg_pc_main_index = parseInt(item.value);
+							} else if (item.id == "sys_cfg_not_template") {
+								// xxx
+								if (item.value.trim() == "true") {
+									sys_cfg_not_template = true;
+								}
+							} else if (item.id == "sys_cfg_router_enable") {
+								sys_cfg_router_enable = item.value;
+							}
+						}
+
+						console.log(JSON.stringify(json_value));
+						localStorage.setItem("project_data", JSON.stringify(json_value));
+						var pid_value = localStorage.getItem("project_pid");
+						router_request_url = project_server_url + "db_option/main" + "/pid/" + pid_value + "/uid/" + json_value["uid"];
+
+
+						if (sys_cfg_router_enable) {
+
+							//路由模板-------------------------------------------------------------//
+							var _this = _self;
+
+							_self.db_request_option("get", "router", "select", "{}", function (data) {
+								var pc_main_url = "";
+								var app_main_url = "";
+								for (let item of data) {
+									if (item.type.trim() == "pc_main" && item.enable.trim() == "true") {
+										pc_main_url = item.url;
+									}
+									else if (item.type.trim() == "app_main" && item.enable.trim() == "true") {
+										app_main_url = item.url;
+									}
+								}
+
+								if (isMobile()) {
+									if (app_main_url != "") {
+										window.location.replace(app_main_url);
+									}
+									else {
+										alert("路由未定义-主界面");
+									}
+								}
+								else {
+									if (pc_main_url != "") {
+										window.location.replace(pc_main_url);
+									}
+									else {
+										alert("路由未定义-主界面");
+									}
+								}
+							});
+							//路由模板-------------------------------------------------------------//
+
+						} else if (sys_cfg_not_template) {
+							var jump_url = "https://www.xiaotongren.top/student/" +
+								global_project_pid + "/" + global_project_pid + "/index.html";
+							console.log("login jump to new web:" + jump_url);
+							window.location.replace(jump_url);
+
+							return;
+						} else if (isMobile()) {
+							if (ui_cfg_app_main_index == 1) {
+								window.location.replace("app_main.html");
+							} else if (ui_cfg_app_main_index == 2) {
+								window.location.replace("app_main_2.html");
+							} else if (ui_cfg_app_main_index == 3) {
+								window.location.replace("app_main_3.html");
+							} else {
+								window.location.replace("app_main_3.html");
+							}
+
+						} else {
+							if (ui_cfg_pc_main_index == 1) {
+								window.location.replace("main.html");
+							} else if (ui_cfg_pc_main_index == 2) {
+								window.location.replace("main_2.html");
+							} else if (ui_cfg_pc_main_index == 3) {
+								window.location.replace("main_3.html");
+							} else if (ui_cfg_pc_main_index == 4) {
+								window.location.replace("main_4.html");
+							} else {
+								window.location.replace("main.html");
+							}
+						}
+
+
+					},
+				});
+			},
+			login_face() {
+				window.location.replace('./faceid.html?type=login');
+			},
+			login() {
+
+
+				var project_input_pid = $("#login_input_pid").val().replace(/\s+/g, "");
+				var project_username = $("#login_input_username").val().replace(/\s+/g, "");
+				var project_passwd = $("#login_input_passwd").val().replace(/\s+/g, "");
+
+
+
+
+
+				if (project_input_pid == "" || project_username == "" || project_passwd == "") {
+					if (project_input_pid == "") {
+						// this.$message('请填写设计编号');
+
+						this.$alert('点击 物联网云平台 标题试一下', '请填写设计ID', {
+							confirmButtonText: '确认',
+						});
+					} else if (project_username == "") {
+						this.$message('请填写用户名');
+					} else if (project_passwd == "") {
+						this.$message('密码不能为空');
+					}
+
+					return;
+				}
+
+				console.log('[' + project_input_pid + ']' + '[' + project_username + ']' + '[' + project_passwd +
+					']');
+
+				global_project_pid = project_input_pid;
+				localStorage.setItem("project_pid", project_input_pid);
+				localStorage.setItem("project_username", project_username);//添加用户名称
+				localStorage.setItem("project_passwd", project_passwd);//添加用户密码
+				// localStorage.setItem("project_uid", project_uid_input);
+
+				//构建登录验证的http请求
+				var request_url = cfg_user_login_url + "/pid/" + project_input_pid + "/username/" +
+					project_username + "/passwd/" + project_passwd;
+
+
+
+
+				this.login_request(request_url); //进行登录验证
+			},
+			reset_click_count(){
+				this.show_pid_click_count = 0;
+			},
+			display_input_pid() {
+
+				this.show_pid_click_count = this.show_pid_click_count + 1;
+				console.log(this.show_pid_click_count);
+
+				clearInterval(this.timer_reset_click_count);
+				this.timer_reset_click_count = setInterval(this.reset_click_count, 1500);
+
+				if (this.show_pid_click_count > 5) {
+					this.show_pid_click_count = 0;
+					if (this.show_pid_input) {
+						document.getElementById('div_input_pid').style.display = "none";
+						this.show_pid_input = false;
+					} else {
+						document.getElementById('div_input_pid').style.display = "inline";
+						this.show_pid_input = true;
+					}
+				}
+			},
+
+		},
+
+		created() {
+
+			if (project_pid != null && project_pid != '') {
+				this.value_project_pid = project_pid;
+			}
+
+			this.config_data = JSON.parse(project_data);
+			console.log(project_data);
+
+			this.timer_reset_click_count = setInterval(this.reset_click_count, 2000);
+
+
+			temp_url = "";
+			this.body_style.backgroundImage = temp_url;
+
+
+			if (this.config_data != null && this.config_data != '') {
+				// console.log(this.config_data);
+				if (this.config_data.ui_cfg_login_index != null && this.config_data.ui_cfg_login_index != '') {
+					console.log(this.config_data.ui_cfg_login_index);
+
+					var ui_cfg_pc_main_index = parseInt(this.config_data.ui_cfg_login_index);
+
+					if (ui_cfg_pc_main_index == 2) {
+						window.location.replace("login_2.html");
+					} else if (ui_cfg_pc_main_index == 3) {
+						window.location.replace("login_3.html");
+					}
+
+				}
+
+			}
+
+			if (this.config_data != null && this.config_data != '') {
+				// console.log(this.config_data);
+				if (this.config_data.ui_cfg_login_background != null && this.config_data
+					.ui_cfg_login_background != '') {
+					console.log(this.config_data.ui_cfg_login_background);
+					temp_url = "url(" + '../img/' + this.config_data.ui_cfg_login_background + '.jpg' + ")";
+					// temp_url = '../img/' +  this.config_data.ui_cfg_login_background +'.jpg';
+					this.body_style.backgroundImage = temp_url;
+				}
+
+			}
+
+
+			if (this.config_data != null && this.config_data != '') {
+				// console.log(this.config_data);
+				if (this.config_data.login_uid_type != null && this.config_data.login_uid_type != '' && this
+					.config_data.login_uid_type == 'face') {
+					console.log(this.config_data.login_uid_type);
+					document.getElementById('div_input_face').style.display = "inline";
+				}
+
+			}
+
+			this.show_pid_input = true; //默认显示
+			document.getElementById('div_input_pid').style.display = "inline"; //默认显示
+			var project_name = localStorage.getItem("project_name");
+			if (project_name != null && project_name != '') {
+				this.value_project_name = project_name;
+				console.log("project_name=" + this.value_project_name);
+
+				this.show_pid_input = false; //如果已经登录过了，就不显示ID
+				document.getElementById('div_input_pid').style.display = "none";//如果已经登录过了，就不显示ID
+			}
+
+
+
+		}
+	})
+</script>
+
+
+
+</html>

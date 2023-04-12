@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html>
+	<style>
+		[v-cloak] {
+			display: none;
+		}
+	</style>
+
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font: 14px/1.4 Georgia, Serif;
+		}
+
+		#container {
+			margin: 20px;
+		}
+
+		p {
+			margin: 20px 0;
+		}
+
+		/* 
+				Generic Styling, for Desktops/Laptops 
+				*/
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		/* Zebra striping */
+		tr:nth-of-type(odd){
+			/* 调整奇数栏属性 */
+			color: #ffffff;
+			background: #5b9bd5;
+		}
+		tr:nth-of-type(odd) a:link,tr:nth-of-type(odd) a:visited,tr:nth-of-type(odd) a:hover,tr:nth-of-type(odd) a:active
+		{
+			/* 调整奇数栏a标签状态属性 */
+			color: #ffffff;
+			text-decoration: none;
+		}
+
+		tr:nth-of-type(even) {
+			/* 调整偶数栏属性 */
+		background: #ff7373;
+		}
+		
+		
+		tr:nth-of-type(even) a:link,tr:nth-of-type(even) a:visited,tr:nth-of-type(even) a:hover,tr:nth-of-type(even) a:active
+		{
+			/* 调整偶数栏a标签状态属性 */
+			color: #000000;
+			text-decoration: none;
+		}
+
+		
+		th {
+			/* 调整标题栏属性 */
+			background: #ff7373;
+			color: white;
+			font-weight: bold;
+		}
+
+		td,
+		th {
+			padding: 6px;
+			border: 1px solid #ccc;
+			text-align: left;
+		}
+
+
+		.container .search {
+			font-size: 15px;
+			padding: 4px;
+			margin-top: 20px;
+			margin-bottom: 20px;
+			width: 50%;
+			color: #fff;
+			/* text-align: center; */
+			float: left;
+		}
+
+		.container .add {
+			font-size: 15px;
+			padding: 4px;
+			margin-top: 20px;
+			width: 40%;
+			text-align: center;
+			float: right;
+		}
+
+		.overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 6;
+			background: rgba(0, 0, 0, .7)
+		}
+
+		/* 			.overlay td:first-child {
+				width: 66px
+			} */
+
+		.overlay .con {
+			font-size: 20px;
+			position: absolute;
+			/* width: 420px; */
+			width: 80%;
+			min-height: 300px;
+			background: #fff;
+			left: 50%;
+			top: 50%;
+			-webkit-transform: translate3d(-50%, -50%, 0);
+			transform: translate3d(-50%, -50%, 0);
+			padding: 20px
+		}
+
+
+		.overlay .con .item_name {
+
+			float: left;
+			text-align: right;
+			width: 28%;
+			font-size: 15px;
+
+		}
+
+		.overlay .con .item_value {
+
+			float: right;
+			text-align: left;
+			width: 68%;
+			font-size: 15px;
+		}
+		input:-moz-placeholder,
+		textarea:-moz-placeholder {  
+		    color: #F6F6F6;  
+		}  
+		input:-ms-input-placeholder,  
+		textarea:-ms-input-placeholder {  
+		    color: #F6F6F6;  
+		}  
+		input::-webkit-input-placeholder,  
+		textarea::-webkit-input-placeholder {  
+		    color: #F6F6F6;  
+		}
+@media only screen and (max-width: 850px),
+	(min-device-width: 858px) and (max-device-width: 1024px) {
+
+		/* Force table to not be like tables anymore */
+		table,
+		thead,
+		tbody,
+		th,
+		td,
+		tr {
+			display: block;
+		}
+
+		/* Hide table headers (but not display: none;, for accessibility) */
+		thead tr {
+			position: absolute;
+			top: -9999px;
+			left: -9999px;
+		}
+
+		tr {
+			border: 1px solid #ccc;
+		}
+
+		td {
+			/* Behave  like a "row" */
+			border: none;
+			border-bottom: 1px solid #eee;
+			position: relative;
+			text-align: center;
+		}
+	}
+
+	</style>
+
+
+	<head>
+		<meta charset="utf-8">
+		<meta id="viewport" name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,
+		minimum-scale=1.0,user-scalable=no,viewport-fit=cover">
+
+		<!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> -->
+
+		<link rel="stylesheet" href="../js/element-ui/theme-chalk/index.css">
+
+	</head>
+
+	<body style="background-size: 100%;">
+
+		<div style="position:relative; z-index:-1">
+			<canvas id="draw_texiao"
+				style=" position: fixed; display: block;left:0;top:0;width: 100%;height: 100%; "></canvas>
+		</div>
+
+
+
+
+		<div id="container" class="container" v-cloak>
+
+			<div >
+			
+				
+				<input type="text" placeholder="信息查询" @input="search" list="cars" class="search" style="z-index: 99;background-color: #5494cb;color: #fff;height: 26px;" />
+				<datalist id="cars">
+					<option v-for="item in searchlist" :value="item"></option>
+				</datalist>
+				
+				
+				
+				
+				<input type="button" class="add" @click="add" value="注册用户"
+				 style="background-color: #ff7373;border: 2px solid #9c3737;
+				  color: #ffffff;border-radius:0px;font-size: 16px;height: 37px;color: #000000;"
+				  />
+				
+				<div style="clear: both;"></div>
+			</div>
+
+
+			<table>
+				<thead>
+					<tr>
+						<th v-for="(value,key) of slist[0]">
+							<span v-if="key=='id'">编号</span>
+							<span v-else-if="key=='user_name'">用户名</span>
+							<span v-else-if="key=='user_passwd'">密码</span>
+							<span v-else-if="key=='uid'">识别码</span>
+							<span v-else-if="key=='role'">角色</span>
+							<span v-else-if="key=='note'">备注</span>
+							<span v-else-if="key=='time'">时间</span>
+							<span v-else>{{ key }}</span>
+
+						</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-cloak v-for="(item, index) of slist">
+
+						<td v-for="(value,key) of slist[index]">
+							<!-- value:{{ value }} key:{{key}} -->
+							<span v-if="key=='uid'">
+								<span v-if=" key=='uid' && value ==null && config_data.login_uid_type != null && config_data.login_uid_type != 'none'"><a
+										href="javascript:;" @click="uid_link_create(item)">绑定</a></span>
+								<span v-else-if="key=='uid' && value =='' && config_data.login_uid_type != null && config_data.login_uid_type != 'none' "><a
+										href="javascript:;" @click="uid_link_create(item)">绑定</a></span>
+								<span v-else-if="key=='uid' && value !=null"><a href="javascript:;"
+										@click="uid_link_modify(item)">{{ value }}</a></span>
+							</span>
+							<span v-if="key!='uid' && value !=null">{{ value }}</span>
+							<span v-else-if="key!='uid'">&nbsp</span>
+						</td>
+
+
+						<td>
+							<a href="javascript:;" @click="showOverlay(item)" >修改</a> |
+							<a href="javascript:;" @click="del(item)">删除</a>
+							<!-- <el-button type="primary" icon="el-icon-edit" circle @click="showOverlay(item)"></el-button> -->
+							<!-- <el-button type="danger" icon="el-icon-delete" circle @click="del(item)"></el-button> -->
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<model :list="selectedlist" :isactive="isActive" v-cloak @change="changeOverlay" @modify="modify"></model>
+		</div>
+	
+
+	</body>
+
+
+
+
+
+
+
+
+	<script src="../js/project_config.js"></script>
+
+	<!-- <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+<script src="https://unpkg.zhimg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>   -->
+
+	<script src="../js/vue.js"></script>
+	<script src="../js/element-ui/index.js"></script>
+	<script src="../js/jquery-3.4.1.min.js"></script>
+
+
+	<script>
+		function request_option(option, arg_data, callback) {
+
+			var data = {};
+
+			if (arg_data != null) {
+				data = JsonDeepCopy(arg_data);
+				if (data.hasOwnProperty("time")) {
+					delete data.time;
+				}
+				if (data.hasOwnProperty("时间")) {
+					delete data.时间;
+				}
+			}
+
+			var final_url = cfg_user_monitor_url;
+			final_url = final_url + "?option=" + option + "&data=" + JSON.stringify(data);
+
+			console.log(final_url);
+
+			$.ajax({
+				type: 'get',
+				dataType: "json",
+				url: final_url,
+				success: function(data) {
+					var json_data;
+					try {
+						json_data = JSON.parse(data);
+					} catch (error) {
+						json_data = data;
+					}
+					callback(json_data);
+				},
+			});
+		}
+
+
+
+
+
+
+		Vue.component('model', {
+			props: ['list', 'isactive'],
+			template: `<div class="overlay" v-show="isactive">
+				<div class="con">
+				
+					<h4 style="text-align: center">新增 | 修改</h4>
+		
+					<div class="content" >
+					
+						<div style="margin:10px auto;" v-for="(value, key) of modifylist">
+							<div class="item_name">
+								<span v-if="key=='id'">编号</span>
+								<span v-else-if="key=='user_name'">用户名</span>
+								<span v-else-if="key=='user_passwd'">密码</span>
+								<span v-else-if="key=='uid'">识别码</span>
+								<span v-else-if="key=='role'">角色</span>
+								<span v-else-if="key=='note'">备注</span>
+								<span v-else-if="key=='time'">时间</span>
+								<span v-else>{{ key }}</span>
+							</div>
+							<input class="item_value" type="text" v-model="modifylist[key]" >
+					 
+							<div style="clear: both;"></div>
+						</div>
+					
+						
+						<div style="margin: 20px 30px;">
+							<input class="item_name" style="font-size: 18px;text-align: center;"  type="button" @click="changeActive" value="取消">
+							<input class="item_value"  style="font-size: 18px;text-align: center;"  type="button" @click="modify" value="保存">
+						</div>
+
+					</div>
+				</div>
+			</div>`,
+			computed: {
+				modifylist() {
+					return JSON.parse(JSON.stringify(this.list));
+				}
+			},
+			methods: {
+				changeActive() {
+					this.$emit('change');
+				},
+				modify() {
+					this.$emit('modify', this.modifylist);
+				}
+			}
+		});
+
+
+
+		var app = new Vue({
+			el: '#container',
+			data: {
+				isActive: false, // 是否显示弹窗
+				isAddNew: true, //是否是添加数据
+				selected: -1, // 选择了哪条记录
+				selectedlist: {}, // 选中的信息
+				slist: [], //add default value here
+				searchlist: [],
+				list: [],
+
+				//////////////////////
+
+				config_data: {},
+			},
+
+
+			created() {
+
+				// this.setSlist(this.list);
+
+
+				console.log('project_data:' + project_data);
+				this.config_data = JSON.parse(project_data);
+
+
+				var _self = this;
+
+				request_option("select", null, function(data) {
+					_self.list = data;
+
+					console.log(JSON.stringify(data));
+
+					_self.setSlist(_self.list);
+				});
+
+
+			},
+			methods: {
+
+				// 修改数据
+				showOverlay(item) {
+
+					this.selectedlist = item;
+					this.changeOverlay();
+
+					this.isAddNew = false;
+
+				},
+				// 点击保存按钮
+				modify(value) {
+
+					_self = this;
+
+					console.log(JSON.stringify(value));
+
+					if (this.isAddNew) {
+						console.log("option is  insert");
+						request_option("insert", value, function(data) {
+
+							request_option("select", " ", function(data) {
+								console.log(JSON.stringify(data));
+
+
+								_self.list = data;
+
+
+								_self.setSlist(data);
+								_self.changeOverlay();
+							});
+
+						});
+					} else {
+						console.log("option is  update");
+
+						request_option("update", value, function(data) {
+
+							request_option("select", " ", function(data) {
+								console.log(JSON.stringify(data));
+
+								_self.list = data;
+
+
+								_self.setSlist(data);
+								_self.changeOverlay();
+							});
+
+						});
+
+					}
+				},
+
+				add: function() {
+
+					this.selectedlist = JsonDeepCopy(this.list[0]);
+
+					for (var value in this.selectedlist) {
+						this.selectedlist[value] = '';
+					}
+
+					this.selected = -1;
+					this.isAddNew = true;
+					this.isActive = true;
+				},
+				// delete list in index location
+
+				del(item) {
+
+					console.log(item);
+
+					if (this.slist.length < 2) {
+						return;
+					}
+
+					_self = this;
+
+					request_option("delete", item, function(data) {
+						// _self.resource = data;
+
+						console.log(JSON.stringify(data));
+
+						_self.list = data;
+
+
+						_self.setSlist(data);
+
+					});
+				},
+
+				changeOverlay() {
+					this.isActive = !this.isActive;
+				},
+
+				// 获取需要渲染到页面中的数据
+				setSlist(arr) {
+					this.slist = JSON.parse(JSON.stringify(arr));
+				},
+
+				// 搜索
+				search(e) {
+					var v = e.target.value,
+						self = this;
+
+					self.searchlist = [];
+
+					if (v) {
+						var ss = [];
+						// 过滤需要的数据
+						this.list.forEach(function(item) {
+
+							for (var value in item) {
+								if (value != null && item[value] != null) {
+									var search_string = item[value] + "";
+									if (search_string != null && search_string.indexOf(v) > -1) {
+										if (self.searchlist.indexOf(search_string) == -1) {
+											self.searchlist.push(search_string);
+										}
+										ss.push(item);
+									}
+								}
+
+							}
+						});
+
+						this.setSlist(ss); // 将过滤后的数据给了slist
+					} else {
+						// 没有搜索内容，则展示全部数据
+						this.setSlist(this.list);
+					}
+				},
+				uid_link_create(item) {
+
+					localStorage.setItem(project_pid + "cfg_localStorage_uid_link", JSON.stringify(item));
+
+					if (this.config_data.login_uid_type == "face") {
+						// window.location.replace("faceid.html?type=register");//登录成功就跳转到传感器监测页面
+						$(location).attr("href", "faceid.html?type=register");
+					} else if (this.config_data.login_uid_type == "card") {
+						window.location.replace("uid_link_card2.html"); //登录成功就跳转到传感器监测页面
+						$(location).attr("href", "uid_link_card2.html");
+					} else if (this.config_data.login_uid_type == "none") {
+						// window.location.replace("uid_link_card.html");//登录成功就跳转到传感器监测页面
+					}
+
+
+
+
+				},
+				uid_link_modify(item) {
+
+					localStorage.setItem(project_pid + "cfg_localStorage_uid_link", JSON.stringify(item));
+
+					if (this.config_data.login_uid_type == "face") {
+						// window.location.replace("faceid.html?type=update");//登录成功就跳转到传感器监测页面
+						$(location).attr("href", "faceid.html?type=update");
+					} else if (this.config_data.login_uid_type == "card") {
+						window.location.replace("uid_link_card.html"); //登录成功就跳转到传感器监测页面
+						$(location).attr("href", "uid_link_card.html");
+					} else if (this.config_data.login_uid_type == "none") {
+						// window.location.replace("uid_link_card.html");//登录成功就跳转到传感器监测页面
+					}
+
+
+				},
+			},
+			watch: {}
+		});
+
+		config_UI("user_manage");
+	</script>
+
+</html>

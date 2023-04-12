@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<style>
+	[v-cloak] {
+		display: none;
+	}
+</style>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title></title>
+</head>
+
+<body>
+
+
+
+</body>
+
+
+<script type="text/javascript" src="../js/project_config.js"></script>
+<script src="../js/jquery-3.4.1.min.js"></script>
+
+
+
+
+<script type="text/javascript">
+
+	function db_request_option(type, table, option, arg_data, callback) {
+
+		var data = {};
+		var db_name = table;
+
+		if (arg_data != null) {
+			data = JsonDeepCopy(arg_data);
+			// if (data.hasOwnProperty("time")) {
+			//     delete data.time;
+			// }
+			// if (data.hasOwnProperty("时间")) {
+			//     delete data.时间;
+			// }
+		}
+
+		if (type == 'post') {
+			request_url = cfg_db_option_url + "?option=" + option + "&data={}" + "&table=" + db_name;
+
+			console.log(request_url);
+
+			$.ajax({
+				type: 'post',
+				dataType: "json",
+				data: data,
+				url: request_url,
+				success: function (data) {
+					var json_data;
+					try {
+						json_data = JSON.parse(data);
+					} catch (error) {
+						json_data = data;
+					}
+					callback(json_data);
+				},
+			});
+		}
+		else {
+			request_url = cfg_db_option_url + "?option=" + option + "&data=" + JSON.stringify(data) + "&table=" + db_name;
+
+			console.log(request_url);
+
+			$.ajax({
+				type: 'get',
+				dataType: "json",
+				url: request_url,
+				success: function (data) {
+					var json_data;
+					try {
+						json_data = JSON.parse(data);
+					} catch (error) {
+						json_data = data;
+					}
+					callback(json_data);
+				},
+			});
+		}
+	}
+
+
+
+
+	var config_data = JSON.parse(project_data);
+	console.log(project_data);
+
+
+	if (config_data != null && config_data != '') {
+		if (config_data.sys_cfg_router_enable != null && config_data.sys_cfg_router_enable != '') {
+			if (config_data.sys_cfg_router_enable == "true") {
+				db_request_option("get", "router", "select", "{}", function (data) {
+					var pc_login_url = "";
+					var app_login_url = "";
+					for (let item of data) {
+						if (item.type.trim() == "pc_login" && item.enable.trim() == "true" ) {
+							pc_login_url = item.url;
+						}
+						else if (item.type.trim() == "app_login" && item.enable.trim() == "true") {
+							app_login_url = item.url;
+						}
+					}
+
+					if (isMobile()) {
+						if (app_login_url != "") {
+							window.location.replace(app_login_url);
+						}
+						else {
+							window.location.replace("login.html");
+						}
+					}
+					else {
+						if (pc_login_url != "") {
+							console.log("pc_login:" + pc_login_url);
+							window.location.replace(pc_login_url);
+						}
+						else {
+							window.location.replace("login.html");
+						}
+					}
+
+				});
+			}
+			else {
+				window.location.replace("login.html");
+			}
+		}
+		else {
+			window.location.replace("login.html");
+		}
+	}
+	else {
+		window.location.replace("login.html");
+	}
+
+
+
+
+</script>
+
+</html>

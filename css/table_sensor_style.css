@@ -1,0 +1,147 @@
+<style>* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font: 14px/1.4 Georgia, Serif;
+}
+
+#container {
+	margin: 20px;
+}
+
+p {
+	margin: 20px 0;
+}
+
+/* 
+				Generic Styling, for Desktops/Laptops 
+				*/
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+/* Zebra striping */
+tr:nth-of-type(odd) {
+	background: #eee;
+}
+
+th {
+	background: #333;
+	color: white;
+	font-weight: bold;
+}
+
+td,
+th {
+	padding: 6px;
+	border: 1px solid #ccc;
+	text-align: left;
+}
+
+
+.container .search {
+	font-size: 15px;
+	padding: 4px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	width: 50%;
+	/* text-align: center; */
+	float: left;
+}
+
+.container .add {
+	font-size: 15px;
+	padding: 4px;
+	margin-top: 20px;
+	width: 40%;
+	text-align: center;
+	float: right;
+}
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 6;
+	background: rgba(0, 0, 0, .7)
+}
+
+/* 			.overlay td:first-child {
+				width: 66px
+			} */
+
+.overlay .con {
+	font-size: 20px;
+	position: absolute;
+	/* width: 420px; */
+	width: 80%;
+	min-height: 300px;
+	background: #fff;
+	left: 50%;
+	top: 50%;
+	-webkit-transform: translate3d(-50%, -50%, 0);
+	transform: translate3d(-50%, -50%, 0);
+	padding: 20px
+}
+
+
+.overlay .con .item_name {
+
+	float: left;
+	text-align: right;
+	width: 28%;
+	font-size: 15px;
+
+}
+
+.overlay .con .item_value {
+
+	float: right;
+	text-align: left;
+	width: 68%;
+	font-size: 15px;
+}
+
+
+
+/* @media only screen and (max-width: 760px),
+			(min-device-width: 768px) and (max-device-width: 1024px) { */
+@media only screen and (max-width: 850px),
+(min-device-width: 858px) and (max-device-width: 1024px) {
+
+	/* Force table to not be like tables anymore */
+	table,
+	thead,
+	tbody,
+	th,
+	td,
+	tr {
+		display: block;
+	}
+
+	/* Hide table headers (but not display: none;, for accessibility) */
+	thead tr {
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+
+	tr {
+		border: 1px solid #ccc;
+	}
+
+	td {
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee;
+		position: relative;
+		text-align: center;
+	}
+
+
+	</style>
